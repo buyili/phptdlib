@@ -1,0 +1,45 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: configure
+        run: cd ../ && git clone https://github.com/CopernicaMarketingSoftware/PHP-CPP.git
+      - name: mkdir
+        run: cd ../PHP-CPP && make && sudo make install
+
+
+      - name: configure
+        run: git submodule update
+      - name: mkdir
+        run: cd phptdlib && mkdir build && cd build
+
+      - name: cmake
+        working-directory: ${{github.workspace}}/build
+        run: cmake ..
+      - name: make
+        working-directory: ${{github.workspace}}/build
+        run: make
+      - name: make install
+        working-directory: ${{github.workspace}}/build
+        run: sudo make install
+      - name: ls -lh
+        working-directory: ${{github.workspace}}/build
+        run: ls l
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: |
+            build

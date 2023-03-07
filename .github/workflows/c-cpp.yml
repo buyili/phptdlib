@@ -1,0 +1,39 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: configure
+        run: CONFIG=gcc CC=gcc CXX=g++ ./scripts/install.sh
+      - name: mkdir
+        run: mkdir build && cd build
+
+      - name: cmake
+        working-directory: ${{github.workspace}}/build
+        run: cmake -D USE_SHARED_TD:BOOL=ON -D USE_SHARED_JSON:BOOL=ON -D USE_SHARED_PHPCPP:BOOL=ON ..
+      - name: make
+        working-directory: ${{github.workspace}}/build
+        run: make
+      - name: make install
+        working-directory: ${{github.workspace}}/build
+        run: sudo make install
+      - name: ls -lh
+        working-directory: ${{github.workspace}}/build
+        run: ls l
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: |
+            build
